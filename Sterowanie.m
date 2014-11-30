@@ -34,6 +34,9 @@ classdef Sterowanie
         function etap = etap_zadania(obj)
             etap = obj.etap;
         end
+        function nr_maszyny = numer_maszyny(obj)
+            nr_maszyny = obj.nr_maszyny;
+        end
     end
     
 end
