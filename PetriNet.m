@@ -68,18 +68,10 @@ classdef PetriNet                                                          %====
     end
     methods(Access=private)
         function obj = WykonajObrobke(obj, numer_zadania, etap, nr_maszyny)
-            obj.Siec(10, nr_maszyny) = 1; % odblokowanie dostep do maszyny
-            obj.Siec(11, nr_maszyny) = 0; % zglaszamy ze element nie jest obrabiany na maszynie
+            obj.Siec(11, nr_maszyny) = 1; % zglaszamy ze element nie jest obrabiany na maszynie
             obj.ListaDostepnychSterowan = [obj.ListaDostepnychSterowan, Sterowanie(3, nr_maszyny, numer_zadania, etap+1)]; % zglaszamy mozliwosc zaladunku i zwiekszamy etap o 1
         end
         function obj = zaladujDetalNaMaszyne(obj, numer_zadania, etap, nr_maszyny)
-            if (obj.Siec(10, nr_maszyny) == 1 && obj.Siec(9,nr_maszyny) > 0) % maszyna jest dostepna i jest meiejsce w buforze wyjsciowym
-                obj.Siec(10, nr_maszyny) = 0; % blokujemy dostep do maszyny
-                obj.Siec(9, nr_maszyny) = obj.Siec(9, nr_maszyny) - 1; % zmniejszamy liczbe miejsc w buforze wyjsciowym o 1
-                obj.Siec(8, nr_maszyny) = obj.Siec(8, nr_maszyny) + 1; % zmniejszamy liczbe miejsc w buforze wejsciowym o 1
-                obj.Siec(11, nr_maszyny) = 1; % zglaszamy ze element jest obrabiany na maszynie
-                obj.ListaDostepnychSterowan = [obj.ListaDostepnychSterowan, Sterowanie(4, nr_maszyny, numer_zadania, etap)]; % zglaszamy mozliwosc obrobki
-            end
             if (nr_maszyny == 5 && etap == 5)
                 obj.Siec(9,5) = obj.Siec(9,5) + 1;
                obj.ListaSkonczonychZadan = [obj.ListaSkonczonychZadan, numer_zadania];
@@ -97,16 +89,23 @@ classdef PetriNet                                                          %====
                for i=1:length(lista_zadan_do_zrobienia)
                     obj.ListaDostepnychSterowan = [obj.ListaDostepnychSterowan, Sterowanie(3, 5, lista_zadan_do_zrobienia(i).numer(), 1)];
                end
+            else
+                obj.Siec(6, nr_maszyny) = 1; % zglaszamy pusty wozek
+                obj.Siec(8, nr_maszyny) = obj.Siec(8, nr_maszyny) + 1; % zmniejszamy liczbe miejsc w buforze wejsciowym o 1
+                obj.ListaDostepnychSterowan = [obj.ListaDostepnychSterowan, Sterowanie(4, nr_maszyny, numer_zadania, etap)]; % zglaszamy mozliwosc obrobki
             end
         end
         function obj = zaladujWozek(obj, numer_zadania, etap, nr_maszyny)
+            obj.Siec(11,nr_maszyny) = 0;
+            obj.Siec(10,nr_maszyny) = 1;
+            
             maszyna_docelowa = obj.ListaZadan(numer_zadania).maszyna(etap); % okresla wiersz w tabeli z siecia petriego
             if (obj.Siec(6, nr_maszyny) == 1 && obj.Siec(8, maszyna_docelowa) > 0) %sprawdzamy czy mamy pusty wozek przy maszynie i czy jest miejsce w buforze wejsciowym maszyny docelowej
                 obj.Siec(6, nr_maszyny) = 0; % ladujemy wozek(likwidujemy pusty)
                 obj.Siec(8, maszyna_docelowa) = obj.Siec(8, maszyna_docelowa) - 1; % zmniejszamy liczbe dostepnych miejsc w buforze wejsciowym maszyny docelowej o 1
                 obj.Siec(maszyna_docelowa, nr_maszyny) = 1;
                 if (nr_maszyny ~= 5)
-                    obj.Siec(8, nr_maszyny) = obj.Siec(8, nr_maszyny) + 1; % zwiekszamy miejsce w buforze wejsciowym dla maszyny kora opuszcza detal
+                    obj.Siec(9, nr_maszyny) = obj.Siec(9, nr_maszyny) + 1; % zwiekszamy miejsce w buforze wejsciowym dla maszyny kora opuszcza detal
                 end
             end
             lista_dostepnych = [];
