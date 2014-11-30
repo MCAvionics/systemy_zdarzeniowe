@@ -3,9 +3,10 @@ classdef Sterowanie
     %   
     
     properties (GetAccess = private)
-        typ;        % określa typ zadania: 1 - załaduj na gniazdo obróbcze,
-                    %                      2 - przejazd wózkiem przez tranzycję
-                    %                      3 - załadunek wózka
+        typ;        % określa typ zadania: 1 - zaladuj do bufora maszyny obrobczej
+                    %                      2 - przejazd wózkiem przez tranzycj
+                    %                      3 - zaladunek wozka
+                    %                      4 - obrobka detalu na maszynie
         nr_maszyny; % określa numer maszyny przy której zdarzenie wystąpiło
         numer;      % nr zadania
         etap;       % nr etapu zadania 
@@ -36,6 +37,21 @@ classdef Sterowanie
         end
         function nr_maszyny = numer_maszyny(obj)
             nr_maszyny = obj.nr_maszyny;
+        end
+        function czy_rowne = eq(obj1,obj2)
+            czy_rowne = true;
+            if (obj1.typ ~= obj2.typ)
+                czy_rowne = false;
+            else if (obj1.nr_maszyny ~= obj2.nr_maszyny)
+                    czy_rowne = false;
+                else if (obj1.numer ~= obj2.numer)
+                        czy_rowne = false;
+                    else if (obj1.etap ~= obj2.etap)
+                            czy_rowne = false;
+                        end
+                    end
+                end
+            end
         end
     end
     
