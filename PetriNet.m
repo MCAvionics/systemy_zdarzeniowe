@@ -3,15 +3,14 @@ classdef PetriNet                                                          %====
         ListaZadan = [];                                                   % 2 wiersz sieci to transport do maszyny 2
         Siec = zeros(11,5);                                                % 3 wiersz sieci to transport do maszyny 3
         ListaDostepnychSterowan = [];                                      % 4 wiersz sieci to transport do maszyny 4
-        EtapyZadan;
+        ListaSkonczonychZadan = [];
     end                                                                    % 5 wiersz sieci to transport do LU
     methods(Access=public)                                                 % 6 wiersz sieci to oznaczenie miejsca z pustym wó¿kiem
         function obj = PetriNet(listaZadan)                                % 7 wiersz sieci to bufory wejœciowe dla ka¿dej z maszyn
             obj.ListaZadan = listaZadan;                                   % 8 wiersz sieci to liczby pustych miejsc w buforach wejœciowych dla ka¿dej z maszyn
             obj.Siec(6,5) = 1; % domyslnie jeden pusty wozek przy LU
-            obj.EtapyZadan = ones(1,length(listaZadan));
             for i = 1:length(obj.ListaZadan)
-                obj.ListaDostepnychSterowan = [obj.ListaDostepnychSterowan Sterowanie(3,5,i,1)]; % dodajemy mozliwosc zaladunku detalu w LU
+                obj.ListaDostepnychSterowan = [obj.ListaDostepnychSterowan Sterowanie(3,5,obj.ListaZadan(i).numer(),1)]; % dodajemy mozliwosc zaladunku detalu w LU
             end
             obj.Siec(10,1) = 1; % domyslnie wszystkie maszyny sa dostepne
             obj.Siec(10,2) = 1;
@@ -34,17 +33,17 @@ classdef PetriNet                                                          %====
         end
         function obj = wykonajSterowanie(obj, sterowanie)
             czy_znaleziono = 0;
-            lista_dostepnych = [Sterowanie(1,1,1,1)];
+            
             j=1;
             for i=1:length(obj.ListaDostepnychSterowan)
                 if (obj.ListaDostepnychSterowan(i) == sterowanie)
                     czy_znaleziono = 1;
                 else
-                    lista_dostepnych(j) = obj.ListaDostepnychSterowan(i);
+                    obj.ListaDostepnychSterowan(j) = obj.ListaDostepnychSterowan(i);
                     j = j+1;
                 end
             end
-            obj.ListaDostepnychSterowan = lista_dostepnych;
+            obj.ListaDostepnychSterowan = obj.ListaDostepnychSterowan(1:j-1);
             assert(czy_znaleziono == 1,'Sterowania nie mozna wykonac');
             typ_zadania = sterowanie.typ_zadania;                          
             numer_zadania = sterowanie.numer_zadania;                      
@@ -81,6 +80,24 @@ classdef PetriNet                                                          %====
                 obj.Siec(11, nr_maszyny) = 1; % zglaszamy ze element jest obrabiany na maszynie
                 obj.ListaDostepnychSterowan = [obj.ListaDostepnychSterowan, Sterowanie(4, nr_maszyny, numer_zadania, etap)]; % zglaszamy mozliwosc obrobki
             end
+            if (nr_maszyny == 5 && etap == 5)
+                obj.Siec(9,5) = obj.Siec(9,5) + 1;
+               obj.ListaSkonczonychZadan = [obj.ListaSkonczonychZadan, numer_zadania];
+               lista_zadan_do_zrobienia = obj.ListaZadan;
+               for i = 1:length(obj.ListaSkonczonychZadan)
+                    k=1;
+                    for j=1:length(lista_zadan_do_zrobienia)
+                        if (lista_zadan_do_zrobienia(j).numer() ~= obj.ListaSkonczonychZadan(i))
+                            lista_zadan_do_zrobienia(k) = lista_zadan_do_zrobienia(j);
+                            k = k+1;
+                        end
+                    end
+                    lista_zadan_do_zrobienia = lista_zadan_do_zrobienia(1:k-1);
+               end
+               for i=1:length(lista_zadan_do_zrobienia)
+                    obj.ListaDostepnychSterowan = [obj.ListaDostepnychSterowan, Sterowanie(3, 5, lista_zadan_do_zrobienia(i).numer(), 1)];
+               end
+            end
         end
         function obj = zaladujWozek(obj, numer_zadania, etap, nr_maszyny)
             maszyna_docelowa = obj.ListaZadan(numer_zadania).maszyna(etap); % okresla wiersz w tabeli z siecia petriego
@@ -92,7 +109,15 @@ classdef PetriNet                                                          %====
                     obj.Siec(8, nr_maszyny) = obj.Siec(8, nr_maszyny) + 1; % zwiekszamy miejsce w buforze wejsciowym dla maszyny kora opuszcza detal
                 end
             end
-            obj.ListaDostepnychSterowan = [obj.ListaDostepnychSterowan, Sterowanie(2, nr_maszyny, numer_zadania, etap)]; % dodajemy mozliwe zadanie transportowe do sterowan
+            lista_dostepnych = [];
+            j=1;
+            for i=1:length(obj.ListaDostepnychSterowan)
+                if (obj.ListaDostepnychSterowan(i).typ_zadania() ~= 3 || obj.ListaDostepnychSterowan(i).numer_maszyny() ~= nr_maszyny)
+                    lista_dostepnych(j) = obj.ListaDostepnychSterowan(i);
+                    j = j+1;
+                end
+            end
+            obj.ListaDostepnychSterowan = [lista_dostepnych, Sterowanie(2, nr_maszyny, numer_zadania, etap)]; % dodajemy mozliwe zadanie transportowe do sterowan
         end
         function obj = wykonajTransport(obj, nr_zadania, etap_zadania, nr_maszyny)
             maszyna_docelowa = obj.ListaZadan(nr_zadania).maszyna(etap_zadania); % okresla wiersz w tabeli z siecia petriego
