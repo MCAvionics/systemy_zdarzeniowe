@@ -3,7 +3,7 @@ function [ zadanie ] = agent( Lista_sterowan, Lista_zadan)
 %   Agent przyjmuje jako paramtry kolejno:
 %   
 %   1. Lista_sterowan - lista zadań, jakie mogą być wykonane w danym kroku
-%   czasowym. powinna składać się z listy obiektów typu Sterowanie
+%   czasowym. Powinna składać się z listy obiektów typu Sterowanie
 %
 %   2. Lista_zadań - lista struktur zawierajaca:
 %        .maszyny - lista numerów maszyn, na których będą wykonywane
