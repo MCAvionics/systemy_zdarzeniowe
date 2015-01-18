@@ -25,7 +25,7 @@ machines(1)= loadOnInputBuf( machines(1), 1, 3);
 %³adowanie z bufora do maszyny
 machines(1)= loadOnMachineSocket(machines(1), 3);
 
-%³adowania z maszyny na wózek
+%³adowania z maszyny na wózek tutaj jest jakby jeden wozek byl (na razie tak ma byc)
 %agv= loadOnAgv(machines(1), 3);
 
 
