@@ -19,10 +19,13 @@ clc;
 
 Lista_zadan(1).maszyny = [  1,  2,  3,  4];
 Lista_zadan(1).czasy   = [ 20,  8, 35,  5];
+Lista_zadan(1).ilosc   = [  5,  0,  0,  0];
 
 Lista_zadan(2).maszyny = [  2,  1,  2,  3];
 Lista_zadan(2).czasy   = [  7, 14,  5, 40];
+Lista_zadan(2).ilosc   = [  5,  0,  0,  0];
 
-% Ilosc detali, indeks = numer zadania
-Ilosc = [ 5, 15];
+
+
+
 
