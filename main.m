@@ -17,26 +17,31 @@ clear all;
 close all;
 clc;
 
-Lista_zadan(1).maszyny = [  1,  2,  3,  4];
-Lista_zadan(1).czasy   = [ 20,  8, 35,  5];
-Lista_zadan(1).ilosc   = [  5,  0,  0,  0];
+Lista_zadan(1).maszyny = [  1,  2,  3];
+Lista_zadan(1).czasy   = [ 20,  8, 35];
+Lista_zadan(1).ilosc   = [  5,  0,  0];
 
 Lista_zadan(2).maszyny = [  2,  1,  2,  3];
 Lista_zadan(2).czasy   = [  7, 14,  5, 40];
 Lista_zadan(2).ilosc   = [  5,  0,  0,  0];
 
+IleZadanNaStart = IleZadanNaLiscie(Lista_zadan);
+IleZadanW_U = 0;
+
 Wielkosc_buforow = 2;
 
-while(true)
+Petri = PetriNet();
+
+while(IleZadanW_U < IleZadanNaStart)
 	% iteruj symulator
-	% ( Zdarzenie, ...) = SymulatorRun( Sterowanie )
+	% Zdarzenie = AktualizujSymulator( Sterowanie, Lista_zadan ); % jesli Sterowanie = [] to iteruj do nastepnego zdarzenia
 	
 	% iteruj siec petriego
-	% Lista_sterowan = PetriNet.costam( Zdarzenie, ....)
+	% Lista_sterowan = PetriNet.AktulaizujOZdarzenie( Zdarzenie, ....);
 
 	% selekcja zadan
-	Sterowanie = agent(Lista_Sterowan, Lista_zadan, Wielkosc_buforow);
+	Sterowanie = agent(Petri.listaDostepnychSterowan(), Lista_zadan, Wielkosc_buforow);
 	
 	% aktualizowanie sieci w oparciu o Sterowanie
-	% PetriNet.costam( Sterowanie )
+        Petri.wykonajSterowanie(Sterowanie);
 end
