@@ -15,7 +15,7 @@ if(Sterowanie.typ_zadania() ~= 4)
 end
 
 % Wykonaj sterowanie
-Lista_zadan(Sterowanie.numer_zadania()).ilosc(
+Lista_zadan(Sterowanie.numer_zadania()).ilosc(Sterowanie.numer_etapu());
 	
 
 % algorytm bankiera
@@ -30,3 +30,5 @@ for i = 1:size(Lista_zadan,2)
     	end 
     end
 end
+
+for 

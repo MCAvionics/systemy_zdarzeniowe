@@ -25,7 +25,18 @@ Lista_zadan(2).maszyny = [  2,  1,  2,  3];
 Lista_zadan(2).czasy   = [  7, 14,  5, 40];
 Lista_zadan(2).ilosc   = [  5,  0,  0,  0];
 
+Wielkosc_buforow = 2;
 
+while(true)
+	% iteruj symulator
+	% ( Zdarzenie, ...) = SymulatorRun( Sterowanie )
+	
+	% iteruj siec petriego
+	% Lista_sterowan = PetriNet.costam( Zdarzenie, ....)
 
-
-
+	% selekcja zadan
+	Sterowanie = agent(Lista_Sterowan, Lista_zadan, Wielkosc_buforow);
+	
+	% aktualizowanie sieci w oparciu o Sterowanie
+	% PetriNet.costam( Sterowanie )
+end
