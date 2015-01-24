@@ -2,7 +2,7 @@
 
 %Preambuła dokumentu
 \usepackage{graphicx}
-
+\usepackage{here}
 \usepackage{rotating}
 \usepackage{subfigure}
 \usepackage{epic}
@@ -41,7 +41,7 @@
 %
 \subsection{Opis ogólny}
 Pierwszym celem projektu jest symulacja zautomatyzowanej linii produkcyjnej z wieloma gniazdami wytwórczymi, obsługiwanej przez wózki AGV. Linia produkcyjna ma kształt pierścienia, z ustalonym dozwolonym kierunkiem ruchu wózków AGV, poruszających się jak na rysunku~\ref{fig:sch}.
- \begin{figure}[htbp]
+ \begin{figure}[H]
   \begin{center}
     \includegraphics[width=0.3\textwidth]{./obrazki/Schemat.png}
     \caption{Struktura ścieżek}
@@ -201,6 +201,7 @@ gdzie $b_{we}$, $b_{wy}$ to odpowiednio rozmiar bufora wejściowego i wyjściowe
 \end{itemize}
 Transport do maszyny nr 4 z maszyny nr 3 to S[4][3]=1. Po wykonaniu tego transportu mamy S[4][3]=0 oraz S[4][4]=1. Gdy następuje transport z maszyny nr 4 na maszynę nr 4 to mamy S[4][4]=0, S[7][4] = 1 (detal w buforze wejściowym maszyny nr 4) oraz S[6][4] = 1 (pusty wózek przy maszynie nr 4)
 \section{Funkcje}
+\label{funkcje}
 Istnieją 4 typy zadań
 \begin{itemize}
 
@@ -329,7 +330,7 @@ $S_7[11][3]=1$ obróbka na maszynie nr 3. $S_7[10][3]=0$ maszyna nr 3 nie jest w
 \end{itemize}
 \section{Opis sterowania}
 Rysunek nr~\ref{fig:alg} przedstawia działanie modelu zdarzeniowego.
- \begin{figure}[htbp]
+ \begin{figure}[H]
   \begin{center}
     \includegraphics[width=1\textwidth]{./obrazki/alg.png}
     \caption{Architektura sterownika}
@@ -339,11 +340,27 @@ Rysunek nr~\ref{fig:alg} przedstawia działanie modelu zdarzeniowego.
 \subsection{Inicjalizacja zadań}
 Zadanie to struktura wchodząca w skład listy zadań składająca się z
 \begin{itemize}
-\item  numerów maszyn, na których są wykonywane poszczególne etapy zadań \textit{Lista\_zadan(i).maszyny = [  1,  2,  3]},
-\item czasów wykonywania kolejnych etapów \textit{Lista\_zadan(i).czasy = [ 20,  8, 35]},
-\item Lista\_zadan(i).ilosc   = [  5,  0,  0]......;
+\item  numerów maszyn, na których są wykonywane poszczególne etapy zadań\\
+\textit{Lista\_zadan(i).maszyny = [$M_j$, $\dots$,  $M_n$]},
+\item czasów obróbki jednego detalu na maszynie\\
+\textit{Lista\_zadan(i).czasy = [$t_j$, $\dots$,  $t_n$]},
+\item liczby detali oczekujących na obróbkę na maszynie\\
+\textit{Lista\_zadan(i).ilosc   = [k, $\dots$, 0]}.
+\label{lista_zad}
 \end{itemize}
-
+\subsection{Sterownik}
+Sterownik na podstawie listy dostępnych sterowań wygenerowanych przez model sieci Petriego, listy zadań oraz wielkości buforów wyjściowych i wejściowych maszyn generuje \textbf{Sterowanie}. \textbf{Sterowanie} to struktura zawierająca w sobie
+\begin{itemize}
+\item typ zadania (typy zadań zostały opisane w sekcji~\ref{funkcje}),
+\item numer maszyny - określa nr maszyny, przy której zdarzenie wystąpiło,
+\item numer - to numer zadania z listy zadań,
+\item etap - to numer etapu zadania.
+\end{itemize}
+Sterowanie generowane jest poprzez algorytm bankiera, następnie z pośród możliwych zadań wybierane jest to, które ma najkrótszy czas do zakończenia. Algorytm bankiera jest zaimplementowany dla maszyn z zadania.  Agent przyjmuje jako parametry
+\begin{itemize}
+\item listę dostępnych sterowań wygenerowaną przez model sieci Petriego, zawierającą możliwe \textbf{Sterowania},
+\item listę zadań.
+\end{itemize}
 
 \begin{thebibliography}{9}
 \bibitem{scr}
