@@ -27,7 +27,7 @@
 \author{Marcin Ciopcia \and Daniel Gut \and Piotr Semberecki \and Hanna Sienkiewicz \and Mateusz Stachowski
 }
  
-\title{Raport nr 1 z projektu Systemy Zdarzeniowe} 
+\title{Raport z projektu Systemy Zdarzeniowe} 
 
 \date{\today}
 
@@ -165,169 +165,10 @@ SU-RAS, w którym funkcja wymagań zasobowych jest określona przez D. Każda op
 Jeżeli detal musi zostać przewieziony z bufora wyjściowego maszyny X na bufor wejściowy maszyny Y to żąda on wolnego miejsca na trasie miedzy tymi maszynami i jednocześnie wózka, który go przewiezie, to oznacza, że jeżeli wózek i wolne miejsce na trasie to zasoby to operacja transportu wymaga dwóch jednostek zasobów różnych typów (każda operacja wymaga jednej jednostki jednego typu zasobu).
 
 \section{Unikanie blokad}
-Bufory muszą mieć pojemność większą nić 1.
+W celu uniknięcia blokad stosujemy pojemność buforów wejściowych i wyjściowych maszyn większą niż 1. Zastosowaliśmy również w sterowniku głównym algorytm bankiera, który służy do sprawdzenia, czy dany stan jest bezpieczny, jeżeli tak to sterownik pozwala na realizację danego zadania, które doprowadza sieć do tego stanu bezpiecznego. Algorytm ten polega na skonstruowaniu ciągu bezpiecznego, tzn. takiego ciągu procesów $P(1),P(2),...,P(n)$, w którym proces $P(i)$ żąda zasobów wolnych w danym stanie lub zajętych przez procesy począwszy od $P(1)$ do $P(i-1)$. 
 
 
-\section{Stan sieci}
-Stan sieci to macierz rozmiaru $11$x$ 5$. Stan początkowy wygląda następująco
-\begin{equation}
-\left[\begin{array}{ccccc}
-0 & 0 & 0 & 0&0\\
-0 &0 &0 &0&0\\
-0 &0 &0 &0&0\\
-0 &0 &0 &0&0\\
-0 &0 &0 &0&0\\
-0 &0 &0 &0 &1\\
-0 &0 &0 &0&0\\
-b_{we}&b_{we}&b_{we}&b_{we} & \infty\\
-b_{wy}&b_{wy}&b_{wy}&b_{wy} & \infty\\
-1&1&1&1 &1\\
-0 &0 &0 &0 &0
-\end{array}\right],
-\end{equation}
-gdzie $b_{we}$, $b_{wy}$ to odpowiednio rozmiar bufora wejściowego i wyjściowego, a
-\begin{itemize}
-\item 1 wiersz sieci to transport do maszyny 1
-\item 2 wiersz sieci to transport do maszyny 2
-\item 3 wiersz sieci to transport do maszyny 3
-\item 4 wiersz sieci to transport do maszyny 4
-\item 5 wiersz sieci to transport do LU
-\item 6 wiersz sieci to oznaczenie miejsca z pustym wókiem (domyslnie jeden pusty wozek przy LU)
-\item 7 wiersz sieci to ilość detali w buforach wejściowych (domyślnie zero dla każdej maszyny)
-\item 8 wiersz sieci to liczby pustych miejsc w buforach wejściowych dla każdej z maszyn
-\item 9 wiersz sieci to liczby pustych miejsc w buforach wyjściowych dla każdej z maszyn
-\item 10 wiersz sieci to dostępność maszyn (domyślnie wszystkie maszyny sa dostępne)
-\item 11 wiersz sieci to obróbka na maszynie
-\end{itemize}
-Transport do maszyny nr 4 z maszyny nr 3 to S[4][3]=1. Po wykonaniu tego transportu mamy S[4][3]=0 oraz S[4][4]=1. Gdy następuje transport z maszyny nr 4 na maszynę nr 4 to mamy S[4][4]=0, S[7][4] = 1 (detal w buforze wejściowym maszyny nr 4) oraz S[6][4] = 1 (pusty wózek przy maszynie nr 4)
-\section{Funkcje}
-\label{funkcje}
-Istnieją 4 typy zadań
-\begin{itemize}
 
-\item Typ 3 - Załaduj wózek,
-Zgłaszamy, że detal nie jest już w gnieździe maszyny, maszyna ta staje się dostępna. Sprawdzamy czy mamy pusty wózek przy maszynie i czy jest miejsce w buforze wejściowym maszyny docelowej. Jeśli tak to rezerwujemy wózek. Zmniejszamy liczbę dostępnych miejsc w buforze wejściowym maszyny docelowej o 1. Zwiększamy miejsce w buforze wejściowym dla maszyny, która opuszcza detal. W wierszu o nr maszyny docelowej, zaznaczamy transport do niej począwszy od maszyny aktualnej. W takim stanie możliwy jest transport.
-\begin{equation}
-S_1=\left[\begin{array}{ccccc}
-0 & 0 & 0 & 0&0\\
-0 & 0 & 0 & 0 & 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-1 & 0 & 0 & 0 & 0\\
-0 & 0 & 0 & 0& 0\\
-b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
-b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
-0& 1& 1& 1 & 1\\
-1 & 0 & 0 & 0 & 0
-\end{array}\right],
-\end{equation}
-$S_1[6][1]=1$ jest pusty wózek przy maszynie nr 1. $S_1[10][1]=0$ maszyna nie jest dostępna. $S_1[11][1]=0$ obróbka detalu trwa. $S_1[8][3]=1$ jest miejsce w buforze wejściowym maszyny docelowej transportu (w tym przykładnie maszyna nr 3). $S_1[8][3]>0$ bufor wejściowy maszyny docelowej nie jest pełny. Po zgłoszeniu zadania "Załaduj wózek" mamy
-\begin{equation}
-S_2=\left[\begin{array}{ccccc}
-0 & 0 & 0 & 0&0\\
-0 & 0 & 0 & 0 & 0\\
-1 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0 & 0\\
-0 & 0 & 0 & 0& 0\\
-b_{we}& b_{we}& b_{we}-1& b_{we} & \infty\\
-b_{wy}+1& b_{wy}& b_{wy}& b_{wy} & \infty\\
-1& 1& 1& 1 & 1\\
-0 & 0 & 0 & 0 & 0
-\end{array}\right],
-\end{equation}
-$S_2[6][1]=0$ rezerwujemy wózek. $S_2[10][1]=1$ maszyna jest znów dostępna. $S_2[11][1]=0$ obróbka zakończona. $S_2[3][1]=1$ zaznaczamy transport z maszyny nr 1 na maszynę docelową (nr 3). $S_2[8][3]=b_{we}-1$ zmniejszamy liczbę dostępnych miejsc w buforze wejściowym maszyny docelowej. $S_2[9][1]=b_{wy}+1$ zwiększamy liczbę dostępnych miejsc w buforze wyjściowym maszyny nr 1. Możliwe jest zadanie transportu.
-
-\item Typ 2 - Wykonaj transport(etap, nr maszyny docelowej),
-\begin{equation}
-S_3=\left[\begin{array}{ccccc}
-0 & 0 & 0 & 0&0\\
-0 & 0 & 0 & 0 & 0\\
-0 & 1 & 0 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0 & 0\\
-0 & 0 & 0 & 0& 0\\
-b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
-b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
-1& 1& 1& 1 & 1\\
-0 & 0 & 0 & 0 & 0
-\end{array}\right],
-\end{equation}
-$S_3[3][1]=0$, $S_3[3][2]=1$ został wykonany transport z maszyny nr 1 na maszynę nr 2, dalej wykonujemy transport z maszyny nr 2 na maszynę nr 3.
-\begin{equation}
-S_4=\left[\begin{array}{ccccc}
-0 & 0 & 0 & 0&0\\
-0 & 0 & 0 & 0 & 0\\
-0 & 0 & 1 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0 & 0\\
-0 & 0 & 0 & 0& 0\\
-b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
-b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
-1& 1& 1& 1 & 1\\
-0 & 0 & 0 & 0 & 0
-\end{array}\right],
-\end{equation}
-$S_4[3][2]=0$, $S_4[3][3]=1$ został wykonany transport z maszyny nr 2 na maszynę nr 3, dalej wykonujemy transport z "maszyny nr 3 na maszynę nr 3".
-\begin{equation}
-S_5=\left[\begin{array}{ccccc}
-0 & 0 & 0 & 0&0\\
-0 & 0 & 0 & 0 & 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 1 & 0 & 0\\
-0 & 0 & 1 & 0& 0\\
-b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
-b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
-1& 1& 1& 1 & 1\\
-0 & 0 & 0 & 0 & 0
-\end{array}\right],
-\end{equation}
-$S_5[3][3]=0$, $S_5[6][3]=1$ mamy pusty wózek przy maszynie nr 3, $S_5[7][3]=1$ mamy detal w buforze wejściowym maszyny nr 3.
-\item Typ 1 - Załaduj detal na maszynę,
-Jeśli jest to ostatni etap zadania i maszyna docelowa to LU, to zadanie zostaje zakończone. Zgłaszamy pusty wózek. Zwiększamy liczbę miejsc w buforze wejściowym maszyny o 1. Zgłaszamy możliwość obróbki.
-\begin{equation}
-S_6=\left[\begin{array}{ccccc}
-0 & 0 & 0 & 0&0\\
-0 & 0 & 0 & 0 & 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 1 & 0 & 0\\
-0 & 0 & 0 & 0& 0\\
-b_{we}& b_{we}& b_{we}+1& b_{we} & \infty\\
-b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
-1& 1& 1& 1 & 1\\
-0 & 0 & 0 & 0 & 0
-\end{array}\right],
-\end{equation}
-$S_6[8][3]=b_{we}+1$ zwiększamy liczbę miejsc w buforze wejściowym maszyny o 1.
-
-
-\item Typ 4 - Wykonaj obróbkę.
-Do odpowiedniej kolumny wiersza 11 jest wpisywana jedynka. Zostaje zwolniony wózek. 
-\begin{equation}
-S_7=\left[\begin{array}{ccccc}
-0 & 0 & 0 & 0&0\\
-0 & 0 & 0 & 0 & 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 0 & 0& 0\\
-0 & 0 & 1 & 0 & 0\\
-0 & 0 & 0 & 0& 0\\
-b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
-b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
-0 & 1& 1& 1 & 1\\
-1 & 0 & 0 & 0 & 0
-\end{array}\right],
-\end{equation}
-$S_7[11][3]=1$ obróbka na maszynie nr 3. $S_7[10][3]=0$ maszyna nr 3 nie jest wolna. Zgłaszamy możliwość załadunku wózka, po wykonanej obróbce.
-\end{itemize}
 \section{Opis sterowania}
 Rysunek nr~\ref{fig:alg} przedstawia działanie modelu zdarzeniowego.
  \begin{figure}[H]
@@ -361,7 +202,169 @@ Sterowanie generowane jest poprzez algorytm bankiera, następnie z pośród moż
 \item listę dostępnych sterowań wygenerowaną przez model sieci Petriego, zawierającą możliwe \textbf{Sterowania},
 \item listę zadań.
 \end{itemize}
+\subsection{Model sieci Petriego - opis stanu sieci}
+Stan sieci to macierz rozmiaru $11$x$ 5$. Stan początkowy wygląda następująco
+\begin{equation}
+\left[\begin{array}{ccccc}
+0 & 0 & 0 & 0&0\\
+0 &0 &0 &0&0\\
+0 &0 &0 &0&0\\
+0 &0 &0 &0&0\\
+0 &0 &0 &0&0\\
+0 &0 &0 &0 &1\\
+0 &0 &0 &0&0\\
+b_{we}&b_{we}&b_{we}&b_{we} & \infty\\
+b_{wy}&b_{wy}&b_{wy}&b_{wy} & \infty\\
+1&1&1&1 &1\\
+0 &0 &0 &0 &0
+\end{array}\right],
+\end{equation}
+gdzie $b_{we}$, $b_{wy}$ to odpowiednio rozmiar bufora wejściowego i wyjściowego, a
+\begin{itemize}
+\item 1. wiersz sieci to transport do maszyny 1,
+\item 2. wiersz sieci to transport do maszyny 2,
+\item 3. wiersz sieci to transport do maszyny 3,
+\item 4. wiersz sieci to transport do maszyny 4,
+\item 5. wiersz sieci to transport do LU,
+\item 6. wiersz sieci to oznaczenie miejsca z pustym wózkiem (domyślnie jeden pusty wózek przy LU),
+\item 7. wiersz sieci to ilość detali w buforach wejściowych (domyślnie zero dla każdej maszyny),
+\item 8. wiersz sieci to liczby pustych miejsc w buforach wejściowych dla każdej z maszyn,
+\item 9. wiersz sieci to liczby pustych miejsc w buforach wyjściowych dla każdej z maszyn,
+\item 10. wiersz sieci to dostępność maszyn (domyślnie wszystkie maszyny są dostępne),
+\item 11. wiersz sieci to obróbka na maszynie.
+\end{itemize}
+Przykładowo transport do maszyny nr 4 z maszyny nr 3 to S[4][3]=1. Po wykonaniu tego transportu mamy S[4][3]=0 oraz S[4][4]=1. Gdy następuje transport z maszyny nr 4 na maszynę nr 4 to mamy S[4][4]=0, S[7][4] = 1 (detal w buforze wejściowym maszyny nr 4) oraz S[6][4] = 1 (pusty wózek przy maszynie nr 4).
+\subsubsection{Funkcje występujące w modelu sieci Petriego}
+\label{funkcje}
 
+Tutaj zostało opisane działanie sieci Petriego wraz z obrazującym to działanie przykładem.
+\newline
+Istnieją 4 typy zadań
+\begin{itemize}
+
+\item Typ 3 - Załaduj wózek,
+Zgłaszamy, że detal nie jest już w gnieździe maszyny, maszyna ta staje się dostępna. Sprawdzamy czy mamy pusty wózek przy maszynie $i$ czy jest miejsce w buforze wejściowym maszyny docelowej. Jeśli tak to rezerwujemy wózek. Zmniejszamy liczbę dostępnych miejsc w buforze wejściowym maszyny docelowej o 1. Zwiększamy miejsce w buforze wejściowym dla maszyny, która opuszcza detal. W wierszu o numerze maszyny docelowej, zaznaczamy transport do niej począwszy od maszyny aktualnej. W takim stanie możliwy jest transport. Do \textbf{Listy dostępnych zadań} dodawane jest \textbf{Sterowanie} - transport.
+\begin{equation*}
+S_1=\left[\begin{array}{ccccc}
+0 & 0 & 0 & 0&0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+1 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
+b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
+0& 1& 1& 1 & 1\\
+1 & 0 & 0 & 0 & 0
+\end{array}\right],
+\end{equation*}
+$S_1[6][1]=1$ jest pusty wózek przy maszynie nr 1. $S_1[10][1]=0$ maszyna nie jest dostępna. $S_1[11][1]=0$ obróbka detalu trwa. $S_1[8][3]=1$ jest miejsce w buforze wejściowym maszyny docelowej transportu (w tym przykładnie maszyna nr 3). $S_1[8][3]>0$ bufor wejściowy maszyny docelowej nie jest pełny. Po zgłoszeniu zadania "Załaduj wózek" mamy
+\begin{equation*}
+S_2=\left[\begin{array}{ccccc}
+0 & 0 & 0 & 0&0\\
+0 & 0 & 0 & 0 & 0\\
+1 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+b_{we}& b_{we}& b_{we}-1& b_{we} & \infty\\
+b_{wy}+1& b_{wy}& b_{wy}& b_{wy} & \infty\\
+1& 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0
+\end{array}\right],
+\end{equation*}
+$S_2[6][1]=0$ rezerwujemy wózek. $S_2[10][1]=1$ maszyna jest znów dostępna. $S_2[11][1]=0$ obróbka zakończona. $S_2[3][1]=1$ zaznaczamy transport z maszyny nr 1 na maszynę docelową (nr 3). $S_2[8][3]=b_{we}-1$ zmniejszamy liczbę dostępnych miejsc w buforze wejściowym maszyny docelowej. $S_2[9][1]=b_{wy}+1$ zwiększamy liczbę dostępnych miejsc w buforze wyjściowym maszyny nr 1. Możliwe jest \textbf{Sterowanie} - transport (dodawane do \textbf{Listy dostępnych zadań}).
+
+\item Typ 2 - Wykonaj transport
+\begin{equation*}
+S_3=\left[\begin{array}{ccccc}
+0 & 0 & 0 & 0&0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 1 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
+b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
+1& 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0
+\end{array}\right],
+\end{equation*}
+$S_3[3][1]=0$, $S_3[3][2]=1$ został wykonany transport z maszyny nr 1 na maszynę nr 2, dalej wykonujemy transport z maszyny nr 2 na maszynę nr 3.
+\begin{equation*}
+S_4=\left[\begin{array}{ccccc}
+0 & 0 & 0 & 0&0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 1 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
+b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
+1& 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0
+\end{array}\right],
+\end{equation*}
+$S_4[3][2]=0$, $S_4[3][3]=1$ został wykonany transport z maszyny nr 2 na maszynę nr 3. Po wystąpieniu dalej wykonujemy transport z "maszyny nr 3 na maszynę nr 3".
+\begin{equation*}
+S_5=\left[\begin{array}{ccccc}
+0 & 0 & 0 & 0&0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 1 & 0 & 0\\
+0 & 0 & 1 & 0& 0\\
+b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
+b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
+1& 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0
+\end{array}\right],
+\end{equation*}
+$S_5[3][3]=0$, $S_5[6][3]=1$ mamy pusty wózek przy maszynie nr 3, $S_5[7][3]=1$ mamy detal w buforze wejściowym maszyny nr 3.
+\item Typ 1 - Załaduj detal na maszynę. Jeśli jest to ostatni etap zadania i maszyna docelowa to LU, to zadanie zostaje zakończone. Zgłaszamy pusty wózek. Zwiększamy liczbę miejsc w buforze wejściowym maszyny o 1. Zgłaszamy \textbf{Sterowanie} - możliwość obróbki (do \textbf{Listy dostępnych zadań}).
+\begin{equation*}
+S_6=\left[\begin{array}{ccccc}
+0 & 0 & 0 & 0&0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 1 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+b_{we}& b_{we}& b_{we}+1& b_{we} & \infty\\
+b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
+1& 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0
+\end{array}\right],
+\end{equation*}
+$S_6[8][3]=b_{we}+1$ zwiększamy liczbę miejsc w buforze wejściowym maszyny o 1. $S_6[7][3]=0$ - przeniesienie z bufora wejściowego maszyny nr 3 do jej gniazda obróbczego.
+
+
+\item Typ 4 - Wykonaj obróbkę.
+Do odpowiedniej kolumny wiersza 11 jest wpisywana jedynka. Zostaje zwolniony wózek. 
+\begin{equation*}
+S_7=\left[\begin{array}{ccccc}
+0 & 0 & 0 & 0&0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 1 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
+b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
+0 & 1& 1& 1 & 1\\
+1 & 0 & 0 & 0 & 0
+\end{array}\right],
+\end{equation*}
+$S_7[11][3]=1$ obróbka na maszynie nr 3. $S_7[10][3]=0$ maszyna nr 3 nie jest wolna. Zgłaszamy możliwość \textbf{Sterowania} - załadunek wózka (do \textbf{Listy dostępnych zadań}), po wykonanej obróbce.
+\end{itemize}
+\subsection{Symulator}
 \begin{thebibliography}{9}
 \bibitem{scr}
   S. Samolej, B. Trybus,
