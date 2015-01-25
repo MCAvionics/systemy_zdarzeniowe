@@ -74,7 +74,7 @@ Wyniki projektu będą upowszechnione na serwisie www, który będzie zawierał
 \begin{itemize}
 \item zbadanie poprawności działania systemu wykorzystując dostarczone dane wejściowe,
 \item wpływ ilości robotów znajdujących się na maszynach
-\item wpływ pojemności buforów wejściowch oraz wyjściowych maszyn na działanie systemu wpływ ilości robotów obsługujących operacje przeniesienia detalu z bufora wejściowego do miejsca operacyjnego maszyny jak i z miejsca operacyjnego maszyny do bufora wyjściowego na działanie systemu,
+\item wpływ pojemności buforów wejściowych oraz wyjściowych maszyn na działanie systemu wpływ ilości robotów obsługujących operacje przeniesienia detalu z bufora wejściowego do miejsca operacyjnego maszyny jak i z miejsca operacyjnego maszyny do bufora wyjściowego na działanie systemu,
 \item dobór algorytmu przeciwdziałającemu blokadom,
 \item wpływ pojemności wózków AGV na działanie systemu.
 \end{itemize}
@@ -123,7 +123,7 @@ W systemie zdarzeniowym można wyróżnić
 \begin{itemize}
 \item sterownik główny,
 \item sterowniki maszyn,
-\item sieć Petrie'go,
+\item sieć Petriego,
 \item symulator zdarzeń.
 \end{itemize}
 
@@ -202,6 +202,16 @@ Sterowanie generowane jest poprzez algorytm bankiera, następnie z pośród moż
 \item listę dostępnych sterowań wygenerowaną przez model sieci Petriego, zawierającą możliwe \textbf{Sterowania},
 \item listę zadań.
 \end{itemize}
+Do sterowania przejazdem wózków wydzielamy osobną warstwę w sterowniku - Sterownik transportu. Sterownik nadrzędny po wybraniu następnego zadania przekazuje je do warstwy sterowania transportem. Następnie sterownik od transportu bierze aktualny etap zadania (w celu ustalenia skąd ma wziąć detal) i następny etap zadania, aby ustalić dokąd ma trafić detal. Jeżeli detal znajduje się przy maszynie $1$-ej i chcemy żeby trafił do maszyny $4$-tej to począwszy od miejsca $1$-tego w przeciwnym kierunku niż ruch wózków Sterownik transportowy szuka pierwszego, wolnego wózka. Jeżeli okazało by się, że przy miejscu $4$-tym nie ma wolnych wózków to przesuwamy go o jeden do przodu (oczywiście przy większej liczbie powstanie rekurencja).
+\subsection{Symulator}
+W symulatorze można rozróżnić symulator maszyn i symulator wózków. Główne zadania symulatora to
+\begin{itemize}
+\item przeniesienie detalu z bufora wyjściowego maszyny na wózek i zasymulowanie ruchu tego wózka,
+\item zatrzymanie wózka przy maszynie i przeniesienie detalu do bufora wejściowego maszyny,
+\item przeniesienie detalu z bufora wyjściowego do gniazda obróbczego,
+\item przeniesienie detalu z gniazda obróbczego do bufora wyjściowego,
+\end{itemize}
+Każde z tych zdarzeń trwa określoną jednostkę czasu.
 \subsection{Model sieci Petriego - opis stanu sieci}
 Stan sieci to macierz rozmiaru $11$x$ 5$. Stan początkowy wygląda następująco
 \begin{equation}
@@ -216,6 +226,8 @@ Stan sieci to macierz rozmiaru $11$x$ 5$. Stan początkowy wygląda następując
 b_{we}&b_{we}&b_{we}&b_{we} & \infty\\
 b_{wy}&b_{wy}&b_{wy}&b_{wy} & \infty\\
 1&1&1&1 &1\\
+0 &0 &0 &0 &0\\
+0 &0 &0 &0 &0\\
 0 &0 &0 &0 &0
 \end{array}\right],
 \end{equation}
@@ -228,13 +240,15 @@ gdzie $b_{we}$, $b_{wy}$ to odpowiednio rozmiar bufora wejściowego i wyjściowe
 \item 5. wiersz sieci to transport do LU,
 \item 6. wiersz sieci to oznaczenie miejsca z pustym wózkiem (domyślnie jeden pusty wózek przy LU),
 \item 7. wiersz sieci to ilość detali w buforach wejściowych (domyślnie zero dla każdej maszyny),
-\item 8. wiersz sieci to liczby pustych miejsc w buforach wejściowych dla każdej z maszyn,
-\item 9. wiersz sieci to liczby pustych miejsc w buforach wyjściowych dla każdej z maszyn,
+\item 8. wiersz sieci to liczba pustych miejsc w buforach wejściowych dla każdej z maszyn,
+\item 9. wiersz sieci to liczba pustych miejsc w buforach wyjściowych dla każdej z maszyn,
 \item 10. wiersz sieci to dostępność maszyn (domyślnie wszystkie maszyny są dostępne),
-\item 11. wiersz sieci to obróbka na maszynie.
+\item 11. wiersz sieci to obróbka na maszynie,
+\item 12. wiersz sieci to wózek w ruchu miedzy M1 a M2, M2 a M3, M3 a M4, M4 a LU, LU a M1 (domyślnie żaden wózek nie jest w ruchu),
+\item 13. wierz sieci to gotowy detal do odbioru znajdujący się w buforze wyjściowym maszyny (domyślnie nie ma gotowych detali).
 \end{itemize}
-Przykładowo transport do maszyny nr 4 z maszyny nr 3 to S[4][3]=1. Po wykonaniu tego transportu mamy S[4][3]=0 oraz S[4][4]=1. Gdy następuje transport z maszyny nr 4 na maszynę nr 4 to mamy S[4][4]=0, S[7][4] = 1 (detal w buforze wejściowym maszyny nr 4) oraz S[6][4] = 1 (pusty wózek przy maszynie nr 4).
-\subsubsection{Funkcje występujące w modelu sieci Petriego}
+Przykładowo transport do maszyny nr 4 z maszyny nr 3 to S[4][3]=1 oraz S[12][3]=1 (wózek w ruchu). Po wykonaniu tego transportu mamy S[4][3]=0, S[4][4]=1 oraz S[12][3]=0. Gdy następuje "transport" z maszyny nr 4 na maszynę nr 4 to mamy S[4][4]=0, S[7][4] = 1 (detal w buforze wejściowym maszyny nr 4) oraz S[6][4] = 1 (pusty wózek przy maszynie nr 4).
+\subsubsection{Symulacja zdarzeń i sterowań w modelu sieci Petriego}
 \label{funkcje}
 
 Tutaj zostało opisane działanie sieci Petriego wraz z obrazującym to działanie przykładem.
@@ -256,12 +270,32 @@ S_1=\left[\begin{array}{ccccc}
 b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
 b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
 0& 1& 1& 1 & 1\\
+1 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0
+\end{array}\right],
+\end{equation*}
+$S_1[6][1]=1$ jest pusty wózek przy maszynie nr 1. Żaden wózek nie jest w ruchu. $S_1[10][1]=0$ maszyna M1 nie jest dostępna, ponieważ $S_1[11][1]=0$ obróbka detalu trwa. $S_1[8][3]>0$ bufor wejściowy maszyny docelowej M3 nie jest pełny. Symulator po czasie trwania obróbki detalu na maszynie M1 zgłasza \textbf{Zdarzenie} do sieci o przeniesienie tego detalu do bufora wyjściowego tej maszyny.
+\begin{equation*}
+S_2=\left[\begin{array}{ccccc}
+0 & 0 & 0 & 0&0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+1 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
+b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
+0& 1& 1& 1 & 1\\
+1 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0\\
 1 & 0 & 0 & 0 & 0
 \end{array}\right],
 \end{equation*}
-$S_1[6][1]=1$ jest pusty wózek przy maszynie nr 1. $S_1[10][1]=0$ maszyna nie jest dostępna. $S_1[11][1]=0$ obróbka detalu trwa. $S_1[8][3]=1$ jest miejsce w buforze wejściowym maszyny docelowej transportu (w tym przykładnie maszyna nr 3). $S_1[8][3]>0$ bufor wejściowy maszyny docelowej nie jest pełny. Po zgłoszeniu zadania "Załaduj wózek" mamy
+$S_2[13][1]$=1 - gotowy detal do odbioru w buforze wyjściowym maszyny M1. $S_2[11][1]=0$ obróbka zakończona, $S_2[10][1]=1$ - maszyna M1 znów dostępna. Po zgłoszeniu \textbf{Zdarzenia}- Załaduj wózek mamy
 \begin{equation*}
-S_2=\left[\begin{array}{ccccc}
+S_3=\left[\begin{array}{ccccc}
 0 & 0 & 0 & 0&0\\
 0 & 0 & 0 & 0 & 0\\
 1 & 0 & 0 & 0& 0\\
@@ -272,14 +306,51 @@ S_2=\left[\begin{array}{ccccc}
 b_{we}& b_{we}& b_{we}-1& b_{we} & \infty\\
 b_{wy}+1& b_{wy}& b_{wy}& b_{wy} & \infty\\
 1& 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0\\
 0 & 0 & 0 & 0 & 0
 \end{array}\right],
 \end{equation*}
-$S_2[6][1]=0$ rezerwujemy wózek. $S_2[10][1]=1$ maszyna jest znów dostępna. $S_2[11][1]=0$ obróbka zakończona. $S_2[3][1]=1$ zaznaczamy transport z maszyny nr 1 na maszynę docelową (nr 3). $S_2[8][3]=b_{we}-1$ zmniejszamy liczbę dostępnych miejsc w buforze wejściowym maszyny docelowej. $S_2[9][1]=b_{wy}+1$ zwiększamy liczbę dostępnych miejsc w buforze wyjściowym maszyny nr 1. Możliwe jest \textbf{Sterowanie} - transport (dodawane do \textbf{Listy dostępnych zadań}).
-
+$S_3[13][1]$=0 - detal został zabrany z bufora wyjściowego. $S_3[6][1]=0$ rezerwujemy wózek. $S_3[3][1]=1$ zaznaczamy transport z maszyny nr 1 na maszynę docelową (nr 3). $S_3[8][3]=b_{we}-1$ zmniejszamy liczbę dostępnych miejsc w buforze wejściowym maszyny docelowej. $S_3[9][1]=b_{wy}+1$ zwiększamy liczbę dostępnych miejsc w buforze wyjściowym maszyny nr 1. Możliwe jest \textbf{Sterowanie} - transport (dodawane do \textbf{Listy dostępnych zadań}).
 \item Typ 2 - Wykonaj transport
 \begin{equation*}
-S_3=\left[\begin{array}{ccccc}
+S_4=\left[\begin{array}{ccccc}
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0 & 0\\
+1 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
+b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
+1& 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0\\
+1 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0
+\end{array}\right],
+\end{equation*}
+Symulator wystawia zdarzenie ruchu wózka $S_4[12][1]$ - wózek w ruchu między M1 a M2.
+\begin{equation*}
+S_5=\left[\begin{array}{ccccc}
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 1 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
+b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
+1& 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0
+\end{array}\right],
+\end{equation*}
+$S_5[12][1]$=0 - koniec ruchu miedzy M1 a M2. Symulator wystawia \textbf{Zdarzenie} - $S_5[3][1]=0$ został wykonany transport z maszyny nr 1 na maszynę nr 2, dalej wykonujemy \textbf{Zdarzenie} - transport z maszyny nr 2 na maszynę nr 3, $S_5[3][2]=1$.
+\begin{equation*}
+S_6=\left[\begin{array}{ccccc}
 0 & 0 & 0 & 0&0\\
 0 & 0 & 0 & 0 & 0\\
 0 & 1 & 0 & 0& 0\\
@@ -290,12 +361,14 @@ S_3=\left[\begin{array}{ccccc}
 b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
 b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
 1& 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0\\
+0 & 1 & 0 & 0 & 0\\
 0 & 0 & 0 & 0 & 0
 \end{array}\right],
 \end{equation*}
-$S_3[3][1]=0$, $S_3[3][2]=1$ został wykonany transport z maszyny nr 1 na maszynę nr 2, dalej wykonujemy transport z maszyny nr 2 na maszynę nr 3.
+Symulator wystawia \textbf{Zdarzenie} - ruch wózka między M2 a M3 -$S_6[12][2]=1$.
 \begin{equation*}
-S_4=\left[\begin{array}{ccccc}
+S_7=\left[\begin{array}{ccccc}
 0 & 0 & 0 & 0&0\\
 0 & 0 & 0 & 0 & 0\\
 0 & 0 & 1 & 0& 0\\
@@ -306,13 +379,15 @@ S_4=\left[\begin{array}{ccccc}
 b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
 b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
 1& 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0\\
 0 & 0 & 0 & 0 & 0
 \end{array}\right],
 \end{equation*}
-$S_4[3][2]=0$, $S_4[3][3]=1$ został wykonany transport z maszyny nr 2 na maszynę nr 3. Po wystąpieniu dalej wykonujemy transport z "maszyny nr 3 na maszynę nr 3".
+Po czasie jazdy wózka symulator informuje sieć o \textbf{Zdarzeniu} - koniec ruchu wózka $S_7[12][2]=0$, $S_7[3][2]=0$ - został wykonany transport z maszyny nr 2 na maszynę nr 3. Następnie sieć wykonuje \textbf{Zdarzenie} - załadunek do bufora wejściowego maszyny nr 3 - $S_7[3][3]=1$.
 \begin{equation*}
-S_5=\left[\begin{array}{ccccc}
-0 & 0 & 0 & 0&0\\
+S_8=\left[\begin{array}{ccccc}
+0 & 0 & 0 & 0& 0\\
 0 & 0 & 0 & 0 & 0\\
 0 & 0 & 0 & 0& 0\\
 0 & 0 & 0 & 0& 0\\
@@ -322,13 +397,16 @@ S_5=\left[\begin{array}{ccccc}
 b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
 b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
 1& 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0\\
 0 & 0 & 0 & 0 & 0
 \end{array}\right],
 \end{equation*}
-$S_5[3][3]=0$, $S_5[6][3]=1$ mamy pusty wózek przy maszynie nr 3, $S_5[7][3]=1$ mamy detal w buforze wejściowym maszyny nr 3.
+$S_8[3][3]=0$, $S_8[6][3]=1$ mamy pusty wózek przy maszynie nr 3, $S_8[7][3]=1$ mamy detal w buforze wejściowym maszyny nr 3. Zgłaszamy możliwość \textbf{Sterowania} - załadunek detalu na maszynę.
+
 \item Typ 1 - Załaduj detal na maszynę. Jeśli jest to ostatni etap zadania i maszyna docelowa to LU, to zadanie zostaje zakończone. Zgłaszamy pusty wózek. Zwiększamy liczbę miejsc w buforze wejściowym maszyny o 1. Zgłaszamy \textbf{Sterowanie} - możliwość obróbki (do \textbf{Listy dostępnych zadań}).
 \begin{equation*}
-S_6=\left[\begin{array}{ccccc}
+S_9=\left[\begin{array}{ccccc}
 0 & 0 & 0 & 0&0\\
 0 & 0 & 0 & 0 & 0\\
 0 & 0 & 0 & 0& 0\\
@@ -339,16 +417,18 @@ S_6=\left[\begin{array}{ccccc}
 b_{we}& b_{we}& b_{we}+1& b_{we} & \infty\\
 b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
 1& 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0\\
 0 & 0 & 0 & 0 & 0
 \end{array}\right],
 \end{equation*}
-$S_6[8][3]=b_{we}+1$ zwiększamy liczbę miejsc w buforze wejściowym maszyny o 1. $S_6[7][3]=0$ - przeniesienie z bufora wejściowego maszyny nr 3 do jej gniazda obróbczego.
+$S_9[8][3]=b_{we}+1$ zwiększamy liczbę miejsc w buforze wejściowym maszyny o 1. $S_9[7][3]=0$ - jest to \textbf{Zdarzenie} przeniesienie z bufora wejściowego maszyny nr 3 do jej gniazda obróbczego.
 
 
 \item Typ 4 - Wykonaj obróbkę.
-Do odpowiedniej kolumny wiersza 11 jest wpisywana jedynka. Zostaje zwolniony wózek. 
+Do odpowiedniej kolumny wiersza 11 jest wpisywana jedynka.
 \begin{equation*}
-S_7=\left[\begin{array}{ccccc}
+S_{10}=\left[\begin{array}{ccccc}
 0 & 0 & 0 & 0&0\\
 0 & 0 & 0 & 0 & 0\\
 0 & 0 & 0 & 0& 0\\
@@ -359,12 +439,32 @@ S_7=\left[\begin{array}{ccccc}
 b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
 b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
 0 & 1& 1& 1 & 1\\
-1 & 0 & 0 & 0 & 0
+1 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0
 \end{array}\right],
 \end{equation*}
-$S_7[11][3]=1$ obróbka na maszynie nr 3. $S_7[10][3]=0$ maszyna nr 3 nie jest wolna. Zgłaszamy możliwość \textbf{Sterowania} - załadunek wózka (do \textbf{Listy dostępnych zadań}), po wykonanej obróbce.
+\textbf{Zdarzenie} - $S_{10}[11][3]=1$ trwa obróbka na maszynie nr 3. $S_{10}[10][3]=0$ maszyna nr 3 nie jest wolna. 
+\begin{equation*}
+S_11=\left[\begin{array}{ccccc}
+0 & 0 & 0 & 0&0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 0 & 0& 0\\
+0 & 0 & 1 & 0 & 0\\
+0 & 0 & 0 & 0& 0\\
+b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
+b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
+1 & 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0\\
+0 & 0 & 1 & 0 & 0
+\end{array}\right],
+\end{equation*}
+Po upłynięciu czasu obróbki, symulator wystawia \textbf{Zdarzenie} - przeniesienie detalu z gniazda obróbczego do bufora wyjściowego maszyny. $S_{11}[13][3]=1$ - gotowy detal w buforze wyjściowym maszyny M3. $S_{11}[11][3]=0$ - koniec obróbki na maszynie M3, $S_{11}[10][3]=1$ - maszyny M3 jest wolna. Zgłaszamy możliwość \textbf{Sterowania} - załadunek wózka (do \textbf{Listy dostępnych zadań}), po wykonanej obróbce.
 \end{itemize}
-\subsection{Symulator}
+
 \begin{thebibliography}{9}
 \bibitem{scr}
   S. Samolej, B. Trybus,
