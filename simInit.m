@@ -8,8 +8,12 @@ end
 
 agvs= struct();
 
-for i=1:agvsNumber %default the last machine will be the start machine
-    agvs(i).agv = agvInit(machines(machinesNumber).machine);
-end
+% for i=1:agvsNumber %default the last machine will be the start machine
+%     agvs(i).agv = agvInit(machines(machinesNumber).machine);
+% end
+
+%for i=1:agvsNumber %default the last machine will be the start machine
+agvs(1).agv = agvInit(1);
+%end
 
 end

@@ -1,4 +1,4 @@
-function [ machine ] = loadOnInputBuf(machine, bufNumber, task )
+function [ machine ] = loadOnOutputBuf(machine, bufNumber, task )
 %LOADONBUF Summary of this function goes here
 %   Detailed explanation goes here
 

@@ -20,13 +20,13 @@ agvsNumber=1;
 machines=vertcat(machines.machine); %inaczej jest problem z iterowaniem 
 %uruchomienie zadania na maszynie
 
-machines(1)= loadOnInputBuf( machines(1), 1, 3);
+%machines(1)= loadOnInputBuf( machines(1), 1, 3);
 
 %³adowanie z bufora do maszyny
-machines(1)= loadOnMachineSocket(machines(1), 3);
+%machines(1)= loadOnMachineSocket(machines(1), 3);
 
 %³adowania z maszyny na wózek tutaj jest jakby jeden wozek byl (na razie tak ma byc)
-%agv= loadOnAgv(machines(1), 3);
+agv= loadOnAgv(machines(1));
 
 
 %przejazd z a do b

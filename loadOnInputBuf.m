@@ -4,7 +4,6 @@ function [ machine ] = loadOnInputBuf(machine, bufNumber, task )
 
 if(machine.inputBuff(bufNumber).node.task==0)
     machine.inputBuff(bufNumber).node.task = task;
-    machine.inputBuff(bufNumber).node.phase = 1;
     machine.inputBuff(bufNumber).node.time = 0;
     
 else
