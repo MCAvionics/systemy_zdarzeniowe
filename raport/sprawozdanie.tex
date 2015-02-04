@@ -64,20 +64,20 @@ Podjęcie tego zagadnienie jest ważne ze względu na poszerzające się zastoso
 
 \subsection{Upowszechnienie wyników}
 
-Wyniki projektu będą upowszechnione na serwisie www, który będzie zawierał
+Wyniki projektu będą upowszechnione, będą one zawierały
 \begin{itemize}
 \item archiwum z oprogramowaniem,
 \item dokumentację algorytmów,
 \item dokumentację oprogramowania dla użytkowników i deweloperów,
 \item przykład działania systemu,
-\item wyniki przeprowadzonych badań, w tym
-\begin{itemize}
-\item zbadanie poprawności działania systemu wykorzystując dostarczone dane wejściowe,
-\item wpływ ilości robotów znajdujących się na maszynach
-\item wpływ pojemności buforów wejściowych oraz wyjściowych maszyn na działanie systemu wpływ ilości robotów obsługujących operacje przeniesienia detalu z bufora wejściowego do miejsca operacyjnego maszyny jak i z miejsca operacyjnego maszyny do bufora wyjściowego na działanie systemu,
-\item dobór algorytmu przeciwdziałającemu blokadom,
-\item wpływ pojemności wózków AGV na działanie systemu.
-\end{itemize}
+%\item wyniki przeprowadzonych badań, w tym
+%\begin{itemize}
+%\item zbadanie poprawności działania systemu wykorzystując dostarczone dane wejściowe,
+%\item wpływ ilości robotów znajdujących się na maszynach
+%\item wpływ pojemności buforów wejściowych oraz wyjściowych maszyn na działanie systemu wpływ ilości robotów obsługujących operacje przeniesienia detalu z bufora wejściowego do miejsca operacyjnego maszyny jak i z miejsca operacyjnego maszyny do bufora wyjściowego na działanie systemu,
+%\item dobór algorytmu przeciwdziałającemu blokadom,
+%\item wpływ pojemności wózków AGV na działanie systemu.
+%\end{itemize}
 \end{itemize}
 \subsection{Sieć Petriego}
 
@@ -132,37 +132,37 @@ Symulator ma za zadanie zasymulować uruchomienie zadania na maszynie, ładowani
 Pierwszy model sterownika działa na zasadzie wykonywania zadań jako pierwszych, których suma czasów wykonywania poszczególnych etapów jest najmniejsza. Posiada on wiedzę o zadaniach, jakie mogą być wykonane w danym kroku czasowym oraz o maszynach, na których będą wykonywane poszczególne etapy zadania jaki o czasach wykonania poszczególnych etapów zadania.
 
 
-Sieć (P/T Sieć) formalnie można zapisać za pomocą piątki $N\ =\ (P,\ T,\ F,\ W,\ M_0)$, gdzie:
-\begin{itemize}
-\item $P$ jest skończonym zbiorem miejsc,
-\item $T$ jest skończonym zbiorem przejść (tranzycji),
-\item $P \cap T =\ \{\o \}$ - zbiory miejsc i przejść są rozłączne,
-\item $F \subseteq (P\times T)\cup (T\times P)$ jest relacją przepływu,
-\item $W:F\to (\mathcal{N}-\{0\})$ jest funkcją wagi łuków,
-\item $M_0:P  \to \mathcal{N}$ jest markowaniem początkowym.
-\end{itemize}
-\section{Sekwencyjny system alokacji zasobów}
-
-RAS definiuje się jako piątkę $\Phi \ =\ (\mathcal{R},\ C,\ \mathcal{P},\ \mathcal{D},\ \mathcal{T})$, gdzie:
-\begin{itemize}
-\item $\mathcal{R}$ jest zbiorem typów zasobów,
-\item $C$ jest funkcją pojemności zasobów,
-\item $\mathcal{P}$ - jest zbiorem typów procesów,
-\item $F \subseteq (P\times T)\cup (T\times P)$ jest relacją przepływu,
-\item $W:F\to (\mathcal{N}-\{0\})$ jest funkcją wagi łuków.
-\item $\mathcal{R}=\{M_i,\ B_{wy_i},\ B_{we_i},\ L/U,\ AGV_j,\ W_j\}$, $i=1,\dots 4,\ j=1,\dots, 4$, gdzie $M$ - zasób maszynowy, $B$ - zasób buforowy, $L/U$ - zasób stacji, $AGV$ - zasób wózków, $W$ - zasób wolnego miejsca między maszynami.
-\item $C(M_i)=1,\ C(B_{we_i})=x,\ C(B_{wy_i})=y,\ C(AGV_i)=z,\ C(L/U)=\infty,\ C(W_j)=w;\ x,\ y,\ z,\ w$ - parametry,
-\item $\mathcal{P}=\{\Pi_i\}$, $i=1,\dots, 6$, (6 procesów to 6 typów produktów),
-\item $\Pi_j=\big<\mathcal{S}_j,\mathcal{G}_j\big>$,
-\item $\mathcal{S}_j=\{Om_{j1},\dots ,Om_{jn(j)}, Ow_{j1},\dots ,Ow_{jm(j)} \}$ zbiór operacji procesu $\Pi_j$, $Om$ - operacje maszynowe, $Ow$ - operacje transportowe,
-\item $\mathcal{G}_j=\{O, t\}$ jest strukturą danych wyznaczającą logikę wykonywania operacji procesu $\Pi_j$; $O$ to zbiór operacji, $t$ czas operacji $O$
-\item $\mathcal{D}:$  jest funkcją wymagań zasobowych operacji, operacje transportu wymagają dostępności wózków oraz wolnej ścieżki między danymi maszynami, operację maszynowe wymagają miejsca w buforze wejściowym oraz wyjściowym jaki i dostępności maszyny; np. $D_{11}=\{B_we1,\ M_1,\ B_wy1\}$ - wymagania zasobowe operacji maszynowej $Om_{11}$.
-
-
-\end{itemize}
-SU-RAS, w którym funkcja wymagań zasobowych jest określona przez D. Każda operacja $O$ wymaga jednej jednostki jednego typu zasobu.
-
-Jeżeli detal musi zostać przewieziony z bufora wyjściowego maszyny X na bufor wejściowy maszyny Y to żąda on wolnego miejsca na trasie miedzy tymi maszynami i jednocześnie wózka, który go przewiezie, to oznacza, że jeżeli wózek i wolne miejsce na trasie to zasoby to operacja transportu wymaga dwóch jednostek zasobów różnych typów (każda operacja wymaga jednej jednostki jednego typu zasobu).
+%Sieć (P/T Sieć) formalnie można zapisać za pomocą piątki $N\ =\ (P,\ T,\ F,\ W,\ M_0)$, gdzie:
+%\begin{itemize}
+%\item $P$ jest skończonym zbiorem miejsc,
+%\item $T$ jest skończonym zbiorem przejść (tranzycji),
+%\item $P \cap T =\ \{\o \}$ - zbiory miejsc i przejść są rozłączne,
+%\item $F \subseteq (P\times T)\cup (T\times P)$ jest relacją przepływu,
+%\item $W:F\to (\mathcal{N}-\{0\})$ jest funkcją wagi łuków,
+%\item $M_0:P  \to \mathcal{N}$ jest markowaniem początkowym.
+%\end{itemize}
+%\section{Sekwencyjny system alokacji zasobów}
+%
+%RAS definiuje się jako piątkę $\Phi \ =\ (\mathcal{R},\ C,\ \mathcal{P},\ \mathcal{D},\ \mathcal{T})$, gdzie:
+%\begin{itemize}
+%\item $\mathcal{R}$ jest zbiorem typów zasobów,
+%\item $C$ jest funkcją pojemności zasobów,
+%\item $\mathcal{P}$ - jest zbiorem typów procesów,
+%\item $F \subseteq (P\times T)\cup (T\times P)$ jest relacją przepływu,
+%\item $W:F\to (\mathcal{N}-\{0\})$ jest funkcją wagi łuków.
+%\item $\mathcal{R}=\{M_i,\ B_{wy_i},\ B_{we_i},\ L/U,\ AGV_j,\ W_j\}$, $i=1,\dots 4,\ j=1,\dots, 4$, gdzie $M$ - zasób maszynowy, $B$ - zasób buforowy, $L/U$ - zasób stacji, $AGV$ - zasób wózków, $W$ - zasób wolnego miejsca między maszynami.
+%\item $C(M_i)=1,\ C(B_{we_i})=x,\ C(B_{wy_i})=y,\ C(AGV_i)=z,\ C(L/U)=\infty,\ C(W_j)=w;\ x,\ y,\ z,\ w$ - parametry,
+%\item $\mathcal{P}=\{\Pi_i\}$, $i=1,\dots, 6$, (6 procesów to 6 typów produktów),
+%\item $\Pi_j=\big<\mathcal{S}_j,\mathcal{G}_j\big>$,
+%\item $\mathcal{S}_j=\{Om_{j1},\dots ,Om_{jn(j)}, Ow_{j1},\dots ,Ow_{jm(j)} \}$ zbiór operacji procesu $\Pi_j$, $Om$ - operacje maszynowe, $Ow$ - operacje transportowe,
+%\item $\mathcal{G}_j=\{O, t\}$ jest strukturą danych wyznaczającą logikę wykonywania operacji procesu $\Pi_j$; $O$ to zbiór operacji, $t$ czas operacji $O$
+%\item $\mathcal{D}:$  jest funkcją wymagań zasobowych operacji, operacje transportu wymagają dostępności wózków oraz wolnej ścieżki między danymi maszynami, operację maszynowe wymagają miejsca w buforze wejściowym oraz wyjściowym jaki i dostępności maszyny; np. $D_{11}=\{B_we1,\ M_1,\ B_wy1\}$ - wymagania zasobowe operacji maszynowej $Om_{11}$.
+%
+%
+%\end{itemize}
+%SU-RAS, w którym funkcja wymagań zasobowych jest określona przez D. Każda operacja $O$ wymaga jednej jednostki jednego typu zasobu.
+%
+%Jeżeli detal musi zostać przewieziony z bufora wyjściowego maszyny X na bufor wejściowy maszyny Y to żąda on wolnego miejsca na trasie miedzy tymi maszynami i jednocześnie wózka, który go przewiezie, to oznacza, że jeżeli wózek i wolne miejsce na trasie to zasoby to operacja transportu wymaga dwóch jednostek zasobów różnych typów (każda operacja wymaga jednej jednostki jednego typu zasobu).
 
 \section{Unikanie blokad}
 W celu uniknięcia blokad stosujemy pojemność buforów wejściowych i wyjściowych maszyn większą niż 1. Zastosowaliśmy również w sterowniku głównym algorytm bankiera, który służy do sprawdzenia, czy dany stan jest bezpieczny, jeżeli tak to sterownik pozwala na realizację danego zadania, które doprowadza sieć do tego stanu bezpiecznego. Algorytm ten polega na skonstruowaniu ciągu bezpiecznego, tzn. takiego ciągu procesów $P(1),P(2),...,P(n)$, w którym proces $P(i)$ żąda zasobów wolnych w danym stanie lub zajętych przez procesy począwszy od $P(1)$ do $P(i-1)$. 
@@ -213,7 +213,7 @@ W symulatorze można rozróżnić symulator maszyn i symulator wózków. Główn
 \end{itemize}
 Każde z tych zdarzeń trwa określoną jednostkę czasu.
 \subsection{Model sieci Petriego - opis stanu sieci}
-Stan sieci to macierz rozmiaru $11$x$ 5$. Stan początkowy wygląda następująco
+Stan sieci to macierz rozmiaru $13$x$ 5$. Stan początkowy wygląda następująco
 \begin{equation}
 \left[\begin{array}{ccccc}
 0 & 0 & 0 & 0&0\\
@@ -247,7 +247,7 @@ gdzie $b_{we}$, $b_{wy}$ to odpowiednio rozmiar bufora wejściowego i wyjściowe
 \item 12. wiersz sieci to wózek w ruchu miedzy M1 a M2, M2 a M3, M3 a M4, M4 a LU, LU a M1 (domyślnie żaden wózek nie jest w ruchu),
 \item 13. wierz sieci to gotowy detal do odbioru znajdujący się w buforze wyjściowym maszyny (domyślnie nie ma gotowych detali).
 \end{itemize}
-Przykładowo transport do maszyny nr 4 z maszyny nr 3 to S[4][3]=1 oraz S[12][3]=1 (wózek w ruchu). Po wykonaniu tego transportu mamy S[4][3]=0, S[4][4]=1 oraz S[12][3]=0. Gdy następuje "transport" z maszyny nr 4 na maszynę nr 4 to mamy S[4][4]=0, S[7][4] = 1 (detal w buforze wejściowym maszyny nr 4) oraz S[6][4] = 1 (pusty wózek przy maszynie nr 4).
+Przykładowo transport do maszyny nr 4 z maszyny nr 3 to S[4][3]=1 oraz S[12][3]=1 (wózek w ruchu). Po wykonaniu tego transportu mamy S[4][3]=0, S[4][4]=1 oraz S[12][3]=0.
 \subsubsection{Symulacja zdarzeń i sterowań w modelu sieci Petriego}
 \label{funkcje}
 
@@ -275,7 +275,7 @@ b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
 0 & 0 & 0 & 0 & 0
 \end{array}\right],
 \end{equation*}
-$S_1[6][1]=1$ jest pusty wózek przy maszynie nr 1. Żaden wózek nie jest w ruchu. $S_1[10][1]=0$ maszyna M1 nie jest dostępna, ponieważ $S_1[11][1]=0$ obróbka detalu trwa. $S_1[8][3]>0$ bufor wejściowy maszyny docelowej M3 nie jest pełny. Symulator po czasie trwania obróbki detalu na maszynie M1 zgłasza \textbf{Zdarzenie} do sieci o przeniesienie tego detalu do bufora wyjściowego tej maszyny.
+$S_1[6][1]=1$ jest pusty wózek przy maszynie nr 1. Żaden wózek nie jest w ruchu. $S_1[10][1]=0$ maszyna M1 nie jest dostępna, ponieważ $S_1[11][1]=1$ obróbka detalu trwa. $S_1[8][3]>0$ bufor wejściowy maszyny docelowej M3 nie jest pełny. Symulator po czasie trwania obróbki detalu na maszynie M1 zgłasza \textbf{Zdarzenie} do sieci o przeniesienie tego detalu do bufora wyjściowego tej maszyny.
 \begin{equation*}
 S_2=\left[\begin{array}{ccccc}
 0 & 0 & 0 & 0&0\\
@@ -287,8 +287,8 @@ S_2=\left[\begin{array}{ccccc}
 0 & 0 & 0 & 0& 0\\
 b_{we}& b_{we}& b_{we}& b_{we} & \infty\\
 b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
-0& 1& 1& 1 & 1\\
-1 & 0 & 0 & 0 & 0\\
+1& 1& 1& 1 & 1\\
+0 & 0 & 0 & 0 & 0\\
 0 & 0 & 0 & 0 & 0\\
 1 & 0 & 0 & 0 & 0
 \end{array}\right],
@@ -446,7 +446,7 @@ b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
 \end{equation*}
 \textbf{Zdarzenie} - $S_{10}[11][3]=1$ trwa obróbka na maszynie nr 3. $S_{10}[10][3]=0$ maszyna nr 3 nie jest wolna. 
 \begin{equation*}
-S_11=\left[\begin{array}{ccccc}
+S_{11}=\left[\begin{array}{ccccc}
 0 & 0 & 0 & 0&0\\
 0 & 0 & 0 & 0 & 0\\
 0 & 0 & 0 & 0& 0\\
@@ -464,7 +464,49 @@ b_{wy}& b_{wy}& b_{wy}& b_{wy} & \infty\\
 \end{equation*}
 Po upłynięciu czasu obróbki, symulator wystawia \textbf{Zdarzenie} - przeniesienie detalu z gniazda obróbczego do bufora wyjściowego maszyny. $S_{11}[13][3]=1$ - gotowy detal w buforze wyjściowym maszyny M3. $S_{11}[11][3]=0$ - koniec obróbki na maszynie M3, $S_{11}[10][3]=1$ - maszyny M3 jest wolna. Zgłaszamy możliwość \textbf{Sterowania} - załadunek wózka (do \textbf{Listy dostępnych zadań}), po wykonanej obróbce.
 \end{itemize}
-
+\section{Struktura programu}
+\begin{itemize}
+\item AlgBankiera.m funkcja zawierająca algorytm bankiera,
+\item IleZadanNaLiscie.m funkcja liczy ile zadań pozostało do realizacji na danej $Liście\ Zadań$,
+\item PetriNet.m klasa implementująca sieć Petriego,
+\item Sterowanie.m klasa implementuje pojedyncze zdarzenie sterowania,
+\item Zadanie.m klasa implementuje zadanie do zrealizowania przez system zdarzeniowy,
+\item agent.m funkcja implementuje agenta decyzyjnego sterownika zdarzeniowego,
+\item agvInit.m funkcja implementuje wózek AGV jak strukturę,
+\item loadOnInputBuf.m 	funkcja implementuje wrzucenie detalu na bufor wejściowy maszyny,
+\item loadOnMachineSocket.m funkcja implementuje wrzucenie detalu na gniazdo obróbcze maszyny,
+\item loadOnOutputBuf.m funkcja implementuje wrzucenie detalu na bufor wyjściowy maszyny,
+\item machineInit.m funkcja inicjuje maszyny jako struktury danych,
+\item main.m program emuluje działanie robotycznego systemu obróbczego w orientacji kołowej oraz implementuje sterownik zdarzeniowy zarządzający siecią,
+\item simInit.m inicjalizacja symulatora.
+\end{itemize}
+\subsection{Główna pętla programu}
+Przykładowa inicjalizacja zadań jest następująca
+\begin{lstlisting}[language=Matlab, frame=single,tabsize=1, caption={Inicjalizacja zadań w pliku main.m}]
+Lista_zadan(1).maszyny = [ 1, 2, 3];
+Lista_zadan(1).czasy = [ 20, 8, 35];
+Lista_zadan(1).ilosc = [ 5, 0, 0];
+Lista_zadan(2).maszyny = [ 2, 1, 2, 3];
+Lista_zadan(2).czasy = [ 7, 14, 5, 40];
+Lista_zadan(2).ilosc = [ 5, 0, 0, 0];
+IleZadanNaStart = IleZadanNaLiscie(Lista_zadan);
+IleZadanW_U = 0;
+\end{lstlisting}
+Główna pętla programu z wyszczególnionymi symulatorem siecią Petriego oraz sterownikiem.
+\begin{lstlisting}[language=Matlab, frame=single,tabsize=1, caption={Część pliku main.m}]
+while(IleZadanW_U < IleZadanNaStart)
+% iteruj symulator
+Zdarzenie = AktualizujSymulator( Sterowanie, Lista_zadan );
+% jesli Sterowanie = [] to iteruj do nastepnego zdarzenia
+% iteruj siec petriego
+Lista_sterowan = PetriNet.AktulaizujOZdarzenie( Zdarzenie);
+% selekcja zadan
+Sterowanie = agent(Petri.listaDostepnychSterowan(),
+/Lista_zadan,Wielkosc_buforow);
+% aktualizowanie sieci w oparciu o Sterowanie
+Petri.wykonajSterowanie(Sterowanie);
+end
+\end{lstlisting}
 \begin{thebibliography}{9}
 \bibitem{scr}
   S. Samolej, B. Trybus,
