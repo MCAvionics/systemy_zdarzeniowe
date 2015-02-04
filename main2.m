@@ -69,10 +69,10 @@ stery = [ s1 s2 s3 s4];
 %0 - zaladowano na maszyne (na bufor wejsciowy, mozna ladowac na gniazdo)
 %1 - wozek dojechal
 %2 - wozek zaladowano
-%4 - skonczono obroke - detal do odbioru z wejscia
+%4 - skonczono obroke - detal do odbioru z bufora wyjsciowego
 %5 - brak nowych zdarzen
 %6 - transport z maszyny do buf wy
-%7 - detal gotowy do obrobki
+%7 - detal gotowy do obrobki w gnieüdzie
 listZdarzen = [5,5,5,5,5];
 
 %% parametry symulacji
