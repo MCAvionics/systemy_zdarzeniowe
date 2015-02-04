@@ -1,5 +1,5 @@
 classdef PetriNet                                                          %=================================================================================== 
-    properties(GetAccess=private)                                          % 1 wiersz sieci to transport do maszyny 1
+    properties(GetAccess=public)                                          % 1 wiersz sieci to transport do maszyny 1
         ListaZadan = [];                                                   % 2 wiersz sieci to transport do maszyny 2
         Siec = zeros(11,5);                                                % 3 wiersz sieci to transport do maszyny 3
         ListaDostepnychSterowan = [];                                      % 4 wiersz sieci to transport do maszyny 4
@@ -64,6 +64,9 @@ classdef PetriNet                                                          %====
         end
         function lista = listaDostepnychSterowan(obj)
             lista = obj.ListaDostepnychSterowan;
+        end
+        function obj = zareagujNaZdarzenie(obj, listaZdarzen)
+            fprintf('Siec: Otrzymano nowe zdarzenie\n');
         end
     end
     methods(Access=private)
