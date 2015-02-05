@@ -1,7 +1,7 @@
 classdef PetriNet                                                          %=================================================================================== 
-    properties(GetAccess=public)                                          % 1 wiersz sieci to transport do maszyny 1
+    properties(GetAccess=public)                                           % 1 wiersz sieci to transport do maszyny 1
         ListaZadan = [];                                                   % 2 wiersz sieci to transport do maszyny 2
-        Siec = zeros(11,5);                                                % 3 wiersz sieci to transport do maszyny 3
+        Siec = zeros(13,5);                                                % 3 wiersz sieci to transport do maszyny 3
         ListaDostepnychSterowan = [];                                      % 4 wiersz sieci to transport do maszyny 4
         ListaSkonczonychZadan = [];
     end                                                                    % 5 wiersz sieci to transport do LU
@@ -67,9 +67,37 @@ classdef PetriNet                                                          %====
         end
         function obj = zareagujNaZdarzenie(obj, listaZdarzen)
             fprintf('Siec: Otrzymano nowe zdarzenie\n');
+            obj = ObsluzZdarzenieOdMaszyn(obj, 1, listaZdarzen(1,:));
+            obj = ObsluzZdarzenieOdMaszyn(obj, 2, listaZdarzen(2,:));
+            obj = ObsluzZdarzenieOdMaszyn(obj, 3, listaZdarzen(3,:));
+            obj = ObsluzZdarzenieOdMaszyn(obj, 4, listaZdarzen(4,:));
+            obj = ObsluzZdarzenieOdMaszyn(obj, 5, listaZdarzen(5,:));
         end
     end
     methods(Access=private)
+        function obj = ObsluzZdarzenieOdMaszyn(obj, nr_maszyny, zdarzenie)
+            if (zdarzenie(1) == 1) % detal gotowy na zaladowanie do bufora
+                obj.ListaDostepnychSterowan = [obj.ListaDostepnychSterowan, Sterowanie(1, nr_maszyny, zdarzenie(4), zdarzenie(5))]; % zglaszamy mozliwosc zaladunku do bufora wejsciowego
+            end
+            if (zdarzenie(1) == 2) % detal zaladowany do bufora
+                %obj.Siec(7,nr_maszyny) = obj.Siec(7,nr_maszyny)-1; % ladowanie detalu do bufora
+                obj.Siec(7,nr_maszyny) = 0;
+                obj.Siec(6,nr_maszyny) = 1; % pusty wózek przy maszynie
+            end
+            if (zdarzenie(2) == 1) % detal gotowy do zaladowania na maszyne
+                obj.ListaDostepnychSterowan = [obj.ListaDostepnychSterowan, Sterowanie(4, nr_maszyny, zdarzenie(4), zdarzenie(5))]; % zglaszamy mozliwosc obrobki
+            end
+            if (zdarzenie(2) == 2) % detal obrabiany
+                obj.Siec(10,nr_maszyny) = 0; % maszyna niedostepna
+                obj.Siec(11,nr_maszyny) = 1; % obrobka na maszynie
+            end
+            if (zdarzenie(3) == 1) % detal gotowy do bufora wyjsciowego
+                %obj.Siec(9,nr_maszyny) = obj.Siec(9,nr_maszyny) - 1; % detal gotowy do odbioru
+                obj.Siec(9,nr_maszyny) = 0;
+                obj.Siec(13,nr_maszyny) = 1; % detal gotowy do odbioru
+                obj.ListaDostepnychSterowan = [obj.ListaDostepnychSterowan, Sterowanie(3, nr_maszyny, zdarzenie(4), zdarzenie(5))]; % zglaszamy mozliwosc odbioru
+            end
+        end
         function obj = WykonajObrobke(obj, numer_zadania, etap, nr_maszyny)
             obj.Siec(11, nr_maszyny) = 1; % zglaszamy ze element nie jest obrabiany na maszynie
             obj.ListaDostepnychSterowan = [obj.ListaDostepnychSterowan, Sterowanie(3, nr_maszyny, numer_zadania, etap+1)]; % zglaszamy mozliwosc zaladunku i zwiekszamy etap o 1
@@ -346,9 +374,9 @@ classdef PetriNet                                                          %====
             end;
         end
         function obj = TranzycjaM3DoM4(obj)
-            if (obj.Siec(3,3) == 1)
-                obj.Siec(3,3) = 0;
-                obj.Siec(3,4) = 1;
+            if (obj.Siec(4,3) == 1)
+                obj.Siec(4,3) = 0;
+                obj.Siec(4,4) = 1;
             end;
         end
         function obj = TranzycjaM4DoM4(obj)

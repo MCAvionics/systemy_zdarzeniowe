@@ -47,12 +47,12 @@ stery = [s1  s2 s3 s4 s5 s6 s7 s0];
 z1 = Zadanie([1,2,4,5],[1,1,1,1],1);
 p = PetriNet([z1]);
 
-listaZdarzen = [0,0,0; %buf we, gniazdo, buf wy
-                0,0,0;
-                0,0,0;
-                0,0,0;
-                0,0,0;
-                0,1,1]; %wozek: stan, maszyna, segment
+listaZdarzen = [0,0,0,0,1; %buf we, gniazdo, buf wy, nr zadania, etap
+                0,0,0,0,1;
+                0,0,0,0,1;
+                0,0,0,0,1;
+                0,0,0,0,1;
+                0,1,1,0,1]; %wozek: stan, maszyna, segment, nr zadania, etap
 
 %parametry wozka
 %0 - nic sie nie dzieje
@@ -78,9 +78,12 @@ while(t<endTime)
         ster = stery(ss);
         if(ster.typ==2) %przejdz tranzyje
 
-            if(listaZdarzen(6)==0) % && agvs(1).agv.machine< ster.nr_maszyny) %wozek pojedzie dalej jesli nic nie robil
+            if(listaZdarzen(6,1)==0) % && agvs(1).agv.machine< ster.nr_maszyny) %wozek pojedzie dalej jesli nic nie robil
                 agvs.agv(1).departureTime=3;   % i jesli nie trafil do tej maszyny, ktorej chcial
-                listaZdarzen(6)=1;
+                listaZdarzen(6,1)=1;
+                listaZdarzen(6,4)=ster.numer;
+                listaZdarzen(6,5)=ster.etap;
+                p = p.zareagujNaZdarzenie(listaZdarzen);
                 eval=ss;
             end           
         end    
@@ -93,7 +96,10 @@ while(t<endTime)
                 machines(ster.nr_maszyny) = loadOnInputBuf(machines(ster.nr_maszyny),1, ster.numer);
                 fprintf(strcat('start ladowanie bufin maszyny:', num2str(ster.nr_maszyny) ,'\n'));
                 listaZdarzen(ster.nr_maszyny,1)=1;
+                listaZdarzen(ster.nr_maszyny,4)=ster.numer;
                 listaZdarzen(6,1)=1; %wozek musi stac zeby mozna bylo go rozladowac
+                listaZdarzen(6,4)=ster.numer;
+                listaZdarzen(6,5)=ster.etap;
                 p = p.zareagujNaZdarzenie(listaZdarzen);
             end
         end            
@@ -105,6 +111,8 @@ while(t<endTime)
                 machines(ster.nr_maszyny) = loadOnMachineSocket(  machines(ster.nr_maszyny), 1, ster.numer );
                 listaZdarzen(ster.nr_maszyny,2)=1;   %rozpoczecie obroki 
                 listaZdarzen(ster.nr_maszyny,1)=0;   %zerowanie bufora we
+                listaZdarzen(ster.nr_maszyny,4)=ster.numer;
+                listaZdarzen(ster.nr_maszyny,5)=ster.etap;
                 p = p.zareagujNaZdarzenie(listaZdarzen);
             end
         end 
@@ -137,7 +145,8 @@ while(t<endTime)
                     agvs.agv(1).machine=1;
                  end
                  fprintf(strcat('wozek dojechal do:', num2str(agvs.agv(1).machine), '\n'));                    
-                 listaZdarzen(6,:)=[0,agvs.agv(1).machine,1];  
+                 listaZdarzen(6,:)=[0,agvs.agv(1).machine,1,ster.numer,ster.etap];  
+                 p = p.zareagujNaZdarzenie(listaZdarzen);
                  agvs.agv(1).segment=1;
             end
         end 
@@ -155,6 +164,10 @@ while(t<endTime)
                  agvs.agv(1).segment=2;
                  listaZdarzen(i,1)=2;  %zaladowano na gniazdo              
                  listaZdarzen(6,3)=2; %wozek przemieszcza sie na bufor wyjsciowy
+                 listaZdarzen(i,4)=ster.numer;
+                 listaZdarzen(i,5)=ster.etap;
+                 listaZdarzen(6,4)=ster.numer;
+                 listaZdarzen(6,5)=ster.etap;
                  p = p.zareagujNaZdarzenie(listaZdarzen);
             end
         end
@@ -167,6 +180,8 @@ while(t<endTime)
             else
                  fprintf(strcat('zakonczona obrobka na ', num2str(i), '\n'));                 
                  listaZdarzen(i,2)=2; %transport z gniazda do wyjscia
+                 listaZdarzen(i,4)=ster.numer;
+                 listaZdarzen(i,5)=ster.etap;
                  p = p.zareagujNaZdarzenie(listaZdarzen);
             end                
         end       
@@ -177,14 +192,20 @@ while(t<endTime)
                  machines(i).outputBuff(1).node.time= machines(i).outputBuff(1).node.time+1;
                  fprintf(strcat('ladowanie bufout maszyny:', num2str(i), '\n'));            
                  listaZdarzen(i,3)=1; %rozpoczecie procesu ladowania na wyjscie
+                 listaZdarzen(i,4)=ster.numer;
+                 listaZdarzen(i,5)=ster.etap;
                  p = p.zareagujNaZdarzenie(listaZdarzen);
             else
                  fprintf(strcat('zaladowano na bufout:', num2str(i), '\n'));  
                  machines(i).outputBuff(1).node.task=0;    
                  machines(i).socket.task=0;   
                  listaZdarzen(i,2)=0; %usuwanie z gniazda
-                 listaZdarzen(i,3)=0; %detal gotowy do odbioru           
+                 listaZdarzen(i,3)=0; %detal gotowy do odbioru
+                 listaZdarzen(i,4)=ster.numer;
+                 listaZdarzen(i,5)=ster.etap;
                  listaZdarzen(6,1)=0; %wozek moze jechac
+                 listaZdarzen(6,4)=ster.numer;
+                 listaZdarzen(6,5)=ster.etap;
                  p = p.zareagujNaZdarzenie(listaZdarzen);
             end
         end 
